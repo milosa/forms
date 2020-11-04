@@ -58,20 +58,21 @@ class FormRuntime implements RuntimeExtensionInterface
         return $extension->getConfig();
     }
 
-    public function run(string $formName = '')
+    public function run(string $formName = '', bool $warn = true)
     {
         $config = $this->getConfig();
         $extension = $this->registry->getExtension(Extension::class);
 
         if (! $config->has($formName)) {
-            return $this->notifications->warning(
+            return $warn ? $this->notifications->warning(
                 '[Boltforms] Incorrect usage of form',
                 'The form "' . $formName . '" is not defined. '
-            );
+            ) : '';
         }
 
         $formConfig = collect($config->get($formName));
-        $form = $this->builder->build($formName, $config);
+        $form = $this->builder->build($formName, $config, $this->dispatcher);
+
         $form->handleRequest($this->request);
 
         if ($form->isSubmitted()) {
@@ -91,14 +92,19 @@ class FormRuntime implements RuntimeExtensionInterface
             $honeypotName = false;
         }
 
-        return $this->twig->render('@boltforms/form.html.twig', [
-            'formconfig' => $formConfig,
+        $template = $config->get('templates')['form'];
+
+        return $this->twig->render($template, [
+            'boltforms_config' => $config,
+            'form_config' => $formConfig,
             'debug' => $config->get('debug'),
-            'honeypotname' => $honeypotName,
+            'honeypot_name' => $honeypotName,
             'form' => $form->createView(),
             'submitted' => $form->isSubmitted(),
             'valid' => $form->isSubmitted() && $form->isValid(),
             'data' => $form->getData(),
+            'formconfig' => $formConfig, // Deprecated
+            'honeypotname' => $honeypotName, // Deprecated
         ]);
     }
 }

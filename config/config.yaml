@@ -31,11 +31,18 @@ spam-action: mark-as-spam # Either 'block', 'none' or 'mark-as-spam'
 # e.g. You created your templates in the `extensions/boltforms/` directory
 # inside your theme, you would use similar to:
 #
+# You can replace twig namespace @boltforms with @theme which will point to your active theme folder
+# The namespace is configured in config/packages/twig.yaml
 templates:
     form: '@boltforms/form.html.twig'
     email: '@boltforms/email.html.twig'
     subject: '@boltforms/subject.html.twig'
     files: '@boltforms/file_browser.twig'
+
+# If the default templates are used, customise the layout.
+layout:
+    form: 'form_div_layout.html.twig' # or see all options here: https://github.com/symfony/symfony/tree/5.x/src/Symfony/Bridge/Twig/Resources/views/Form
+    bootstrap: false # if true, bootstrap will automatically be included.
 
 ## reCAPTCHa set up
 #
@@ -98,6 +105,7 @@ contact:
         debug_address: name@example.com # Email address used when debug mode is enabled
         debug_smtp: true
         subject: Your message was submitted
+        subject_prefix: '[Boltforms]'
         replyto_name: '{NAME}'                 # Email addresses and names can be either the
         replyto_email: '{EMAIL}'                 # name of a field below or valid text.
         to_name: 'WebsiteName'     

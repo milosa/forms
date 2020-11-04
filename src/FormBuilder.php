@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Bolt\BoltForms;
 
+use Bolt\BoltForms\EventSubscriber\SymfonyFormProxySubscriber;
 use Bolt\BoltForms\Factory\FieldOptions;
 use Bolt\BoltForms\Factory\FieldType;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Form;
 use Symfony\Component\Form\FormBuilder as SymfonyFormBuilder;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Tightenco\Collect\Support\Collection;
 
 class FormBuilder
@@ -22,7 +24,7 @@ class FormBuilder
         $this->formFactory = $formFactory;
     }
 
-    public function build(string $formName, Collection $config): Form
+    public function build(string $formName, Collection $config, EventDispatcherInterface $eventDispatcher): Form
     {
         /** @var SymfonyFormBuilder $formBuilder */
         $formBuilder = $this->formFactory->createNamedBuilder($formName, FormType::class, [], [
@@ -30,13 +32,13 @@ class FormBuilder
                 'class' => 'boltforms',
             ],
         ]);
+        $formBuilder->addEventSubscriber(new SymfonyFormProxySubscriber($eventDispatcher));
 
         foreach ($config->get($formName)['fields'] as $name => $field) {
             $this->addField($formBuilder, $name, $field);
         }
 
         $this->addHoneypot($formName, $formBuilder, $config);
-
         return $formBuilder->getForm();
     }
 

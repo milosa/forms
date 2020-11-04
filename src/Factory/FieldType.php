@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Bolt\BoltForms\Factory;
 
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
@@ -30,6 +31,9 @@ class FieldType
                 break;
             case 'choice':
                 $type = ChoiceType::class;
+                break;
+            case 'checkbox':
+                $type = CheckboxType::class;
                 break;
             case 'text':
             default:
